@@ -211,7 +211,7 @@ def get_url_for_public_test():
                 external_test_testrun_session_test.TestLanguage = ""
                 session.add(external_test_testrun_session_test)
 
-            # check if a login token exists for this user 
+            # check if a login token exists for this user
             # if there already is an active token for this ReferenceID then return that token
             token = ITSRestAPILogin.create_session_token("external_user_itr365.com", company_id,
                                                          ITSRestAPILogin.LoginTokenType.regular_session)
@@ -227,4 +227,4 @@ if __name__ == '__main__':
     # app.debug = True
     # MET FLASK app.run()
     # app.run(debug=True)
-    serve(app.wsgi_app, threads = 25, listen="*:1443")
+    serve(app.wsgi_app, threads = 25, listen="*:443")
