@@ -112,6 +112,11 @@ def get_url_for_public_test():
         session_description = request.headers['Description']
     except:
         pass
+    try:
+        language = ""
+        language = request.headers['Language']
+    except:
+        pass
 
     # check if the combination of company id, user id and external API token is correct. If not then return a forbidden
     # the external API key is in the PluginData field
@@ -186,6 +191,7 @@ def get_url_for_public_test():
                 external_test_testrun_session.PersonID = external_test_testrun_user.ID
                 external_test_testrun_session.GroupID = group_reference_id
                 external_test_testrun_session.GroupSessionID = "{00000000-0000-0000-0000-000000000000}"
+                external_test_testrun_session.ManagedByUserID = external_manager.ID
                 session.add(external_test_testrun_session)
             external_test_testrun_session.Description = session_description
 
@@ -216,10 +222,58 @@ def get_url_for_public_test():
             token = ITSRestAPILogin.create_session_token("external_user_itr365.com", company_id,
                                                          ITSRestAPILogin.LoginTokenType.regular_session)
 
+            lang_string = ""
+            if language != "":
+                lang_string = "&Lang="+language
             if external_test_testrun_session.Status < 30:
-                return "?TestTakingOnly=Y&Token=" + token + "&CompanyID=" + company_id, 200
+                return "?TestTakingOnly=Y&Token=" + token + "&CompanyID=" + company_id + lang_string, 200
             else:
-                return "?TestTakingOnly=Y&Token=" + token + "&CompanyID=" + company_id, 204
+                return "?TestTakingOnly=Y&Token=" + token + "&CompanyID=" + company_id + lang_string, 204
+        else:
+            return "The external API token for this user_id does not exist or is not correct", 403
+
+# create a new test session with the test indicated and the norms requested
+@app.route('/GetURLForViewingResults')
+def get_url_for_viewing_results():
+    company_id = request.headers['CompanyID']
+    user_id = request.headers['UserID']
+    external_api_token = request.headers['ExternalAPIToken']
+    reference_id = request.headers['ReferenceID']
+    # the path is always Session but can be set to any supported path
+    try:
+        jump_path = "Session"
+        jump_path = request.headers['Path']
+    except:
+        pass
+    try:
+        language = ""
+        language = request.headers['Language']
+    except:
+        pass
+
+    # check if the combination of company id, user id and external API token is correct. If not then return a forbidden
+    # the external API key is in the PluginData field
+    with ITSRestAPIDB.session_scope(company_id) as session:
+        external_manager = session.query(ITSRestAPIORMExtensions.SecurityUser).filter(
+            ITSRestAPIORMExtensions.SecurityUser.CompanyID == company_id).filter(
+            ITSRestAPIORMExtensions.SecurityUser.ID == user_id).first()
+
+        external_api_token_from_user = ""
+        try:
+            if external_manager is not None and external_manager.IsOfficeUser:
+                external_api_token_from_user = json.loads(external_manager.PluginData)["ExternalAPIKey"]
+        except:
+            pass
+
+        if external_api_token_from_user == external_api_token and external_api_token_from_user != "":
+            # create a new token and return that
+            token = ITSRestAPILogin.create_session_token( external_manager.Email , company_id,
+                                                         ITSRestAPILogin.LoginTokenType.regular_session)
+
+            lang_string = ""
+            if language != "":
+                lang_string = "&Lang="+language
+            return "?Token=" + token + "&CompanyID=" + company_id + "&SessionID=" + reference_id + "&Path=" + jump_path, 200
         else:
             return "The external API token for this user_id does not exist or is not correct", 403
 
@@ -227,4 +281,4 @@ if __name__ == '__main__':
     # app.debug = True
     # MET FLASK app.run()
     # app.run(debug=True)
-    serve(app.wsgi_app, threads = 25, listen="*:443")
+    serve(app.wsgi_app, threads = 25, listen="*:1443")
