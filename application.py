@@ -30,6 +30,7 @@ import sys
 # Change this line for a non standard REST API installation path
 sys.path.insert(0, '.')
 sys.path.insert(0, '../ITS rest api/')
+sys.path.insert(0, '../API/')
 
 import ITSRestAPILogin
 import ITSMailer
