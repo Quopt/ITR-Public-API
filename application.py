@@ -46,7 +46,7 @@ import ITSTranslate
 import ITSHelpers
 
 app = Flask(__name__, instance_relative_config=True)
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/itr_api')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/externalapi')
 app.json_encoder = ITSJsonify.CustomJSONEncoder
 Compress(app)
 CORS(app)
