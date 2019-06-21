@@ -133,7 +133,7 @@ def get_url_for_public_test():
         except:
             pass
 
-        if external_api_token_from_user == external_api_token and external_api_token_from_user != "":
+        if external_api_token_from_user == external_api_token and external_api_token_from_user != "" and external_api_token_from_user != "undefined":
             # check if the External Test user exists with Email = "external_user_itr365.com"
             # if not add it
             hashed_password = hashlib.sha512(
@@ -266,7 +266,7 @@ def get_url_for_viewing_results():
         except:
             pass
 
-        if external_api_token_from_user == external_api_token and external_api_token_from_user != "":
+        if external_api_token_from_user == external_api_token and external_api_token_from_user != "" and external_api_token_from_user != "undefined":
             # create a new token and return that
             token = ITSRestAPILogin.create_session_token( external_manager.Email , company_id,
                                                          ITSRestAPILogin.LoginTokenType.regular_session)
