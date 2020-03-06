@@ -70,7 +70,6 @@ def teardown_request(exception=None):
     if LastAPIRefresh == "":
         LastAPIRefresh = file(os.path.join(os.sep, app.root_path, 'api_refresh_date.txt'), "r").read()
     elif LastAPIRefresh != file(os.path.join(os.sep, app.root_path, 'api_refresh_date.txt'), "r").read():
-        os.execv(sys.executable, ['python3'] + sys.argv)
         exit()
 
 @app.errorhandler(500)
