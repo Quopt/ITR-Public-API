@@ -51,8 +51,12 @@ app.json_encoder = ITSJsonify.CustomJSONEncoder
 Compress(app)
 CORS(app)
 
+LastAPIRefresh = ""
+
 @app.teardown_request
 def teardown_request(exception=None):
+    global LastAPIRefresh
+
     #stop all open database connections
     try:
      for key, dbengine in ITSRestAPIDB.db_engines_created.items():
@@ -62,6 +66,11 @@ def teardown_request(exception=None):
             pass
     except:
         pass
+
+    if LastAPIRefresh == "":
+        LastAPIRefresh = file(os.path.join(os.sep, app.root_path, 'api_refresh_date.txt'), "r").read()
+    elif LastAPIRefresh != file(os.path.join(os.sep, app.root_path, 'api_refresh_date.txt'), "r").read():
+        os.execv(sys.executable, ['python3'] + sys.argv)
 
 @app.errorhandler(500)
 def internal_error(error):
